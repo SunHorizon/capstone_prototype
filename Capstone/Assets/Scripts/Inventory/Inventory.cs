@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 public class Inventory : MonoBehaviour
 {
-
     // inventory background rect
     private RectTransform inventoryRect;
 
@@ -32,11 +31,24 @@ public class Inventory : MonoBehaviour
     [SerializeField] private GameObject IconPrefab;
     [SerializeField] private static GameObject HoverObject;
 
+    // name of the inventory to see what type of item to store
+    public string name;
+
     // list of all the slots in the inventory
     private List<GameObject> allSlots;
 
     // get the canvas
     public Canvas canvas;
+
+    // to fade in and out inventory
+    private static CanvasGroup canvasGroup;
+
+    // fade in and out bools
+    private bool fadingIn;
+    private bool fadingOut;
+
+    // Timer of fade
+    public float fadeTime;
 
     // offset for hover icon
     private float HoverYffSet;
@@ -57,10 +69,18 @@ public class Inventory : MonoBehaviour
         set { emptySlot = value; }
     }
 
+    // return the cnavas group
+    public static CanvasGroup CanvasGroup
+    {
+        get { return Inventory.canvasGroup; }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        // get the canvas group
+        canvasGroup = transform.parent.GetComponent<CanvasGroup>();
+
         // make the inventory
         CreateLayout();
     }
@@ -73,12 +93,14 @@ public class Inventory : MonoBehaviour
         {
             if (!eventSystem.IsPointerOverGameObject(-1) && from != null)
             {
-                from.GetComponent<Image>().color = Color.white;
-                from.ClearSlot();
-                Destroy(GameObject.Find("Hover"));
+                from.GetComponent<Image>().color = Color.white; // reset the color
+                from.ClearSlot(); // clear all the items from the slot 
+                Destroy(GameObject.Find("Hover")); // Destroy all the object
+
+                // reset all the objects
                 to = null;
                 from = null;
-                HoverObject = null;
+                emptySlot++;
             }
         }
 
@@ -91,6 +113,20 @@ public class Inventory : MonoBehaviour
                 canvas.worldCamera, out position);
             position.Set(position.x, position.y - HoverYffSet);
             HoverObject.transform.position = canvas.transform.TransformPoint(position);
+        }
+
+        // open and close inventory when input key is pressed
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            if (canvasGroup.alpha > 0)
+            {
+                StartCoroutine("FadeOut"); // start the coroutine to close inventory
+                PutItemBack(); // put item back if it is selected 
+            }
+            else 
+            {
+                StartCoroutine("FadeIn"); // start the coroutine to open inventory
+            }
         }
     }
 
@@ -139,11 +175,13 @@ public class Inventory : MonoBehaviour
 
                 // placing the slot in the inventory
                 slotRect.localPosition = inventoryRect.localPosition + new Vector3(slotPaddingLeft + (x * slotPaddingLeft) + (slotSize * x), -slotPaddingTop * (y + 1) - (slotSize *  y));
-               // slotRect.localPosition = inventoryRect.localPosition + new Vector3(slotPaddingLeft + (x + 1) + (slotSize * x), -slotPaddingTop * (y + 1) - (slotSize *  y));
+               
+
 
                 // setting the size
-                slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, slotSize);
-                slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, slotSize);
+                slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, slotSize * canvas.scaleFactor);
+                slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, slotSize * canvas.scaleFactor);
+                newSlot.transform.SetParent(this.transform);
 
                 // adding the new slot to the list
                 allSlots.Add(newSlot);
@@ -217,15 +255,14 @@ public class Inventory : MonoBehaviour
         return false;
     }
 
-
     // move items from slot to slot
     public void MoveItem(GameObject clicked)
     {
         // checking if nothing is in from
-        if (from == null)
+        if (from == null && canvasGroup.alpha == 1)
         {
             //if the clicked slot is not empty 
-            if (!clicked.GetComponent<Slot>().isEmpty)
+            if (!clicked.GetComponent<Slot>().isEmpty && !GameObject.Find("Hover"))
             {
                 // place the clicked item in from 
                 from = clicked.GetComponent<Slot>();
@@ -254,9 +291,9 @@ public class Inventory : MonoBehaviour
         else if (to == null)
         {
             to = clicked.GetComponent<Slot>();
-
             // destroy the hover object ones its placed
             Destroy(GameObject.Find("Hover"));
+
         }
         if (to != null && from != null)
         {
@@ -281,7 +318,94 @@ public class Inventory : MonoBehaviour
 
             to = null;
             from = null;
-            HoverObject = null;
+            Destroy(GameObject.Find("Hover"));
         }
     }
+
+    // to put the items back in inventory when it is closed
+    private void PutItemBack()
+    {
+        if (from != null)
+        {
+            Destroy(GameObject.Find("Hover")); // destroy the hover object
+            from.GetComponent<Image>().color = Color.white; // change the color back to white in the slot
+            from = null;
+        }
+    }
+
+    // timer to close inventory
+    private IEnumerator FadeOut()
+    {
+        if (!fadingOut)
+        {
+            fadingOut = true;
+            fadingIn = false;
+
+            // making sure to not fade in and out at the same time
+            StopCoroutine("FadeIn");
+
+            // Aptha value of inventory
+            float startAlpha = canvasGroup.alpha;
+
+            // the rate to fade out
+            float rate = 1.0f / fadeTime;
+
+            // progress of the fade 
+            float progress = 0.0f;
+
+            // keep fading out till the inventory is not visible
+            while (progress < 1.0)
+            {
+                // fading out the inventory
+                canvasGroup.alpha = Mathf.Lerp(startAlpha, 0, progress);
+
+                // increase the progress with the rate
+                progress += rate * Time.deltaTime;
+
+                yield return  null;
+            }
+            // when done fading
+            canvasGroup.alpha = 0;
+            fadingOut = false;
+        }
+    }
+
+    // timer to open inventory
+    private IEnumerator FadeIn()
+    {
+        if (!fadingIn)
+        {
+            fadingOut = false;
+            fadingIn = true;
+
+            // making sure to not fade in and out at the same time
+            StopCoroutine("FadeOut");
+
+            // Aptha value of inventory
+            float startAlpha = canvasGroup.alpha;
+
+            // the rate to fade out
+            float rate = 1.0f / fadeTime;
+
+            // progress of the fade 
+            float progress = 0.0f;
+
+            // keep fading in till the inventory is visible
+            while (progress < 1.0)
+            {
+                // fading out the inventory
+                canvasGroup.alpha = Mathf.Lerp(startAlpha, 1, progress);
+
+                // increase the progress with the rate
+                progress += rate * Time.deltaTime;
+
+                yield return null;
+            }
+
+            // when done fading
+            canvasGroup.alpha = 1;
+            fadingIn = false;
+        }
+    }
+
 }

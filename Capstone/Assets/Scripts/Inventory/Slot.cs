@@ -159,8 +159,9 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     // using item if clicked
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Right)
+        if (eventData.button == PointerEventData.InputButton.Right && !GameObject.Find("Hover") && Inventory.CanvasGroup.alpha > 0)
         {
+            // using the item
             UseItem();
         }
     }

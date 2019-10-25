@@ -248,7 +248,7 @@ MonoBehaviour:
     type: 3}
   spriteHighlighted: {fileID: -3744600892691428516, guid: 83adc6960ac67f244ba526e20334329a,
     type: 3}
-  maxSize: 5
+  maxSize: 2
 --- !u!1 &1096790411
 GameObject:
   m_ObjectHideFlags: 0
@@ -500,7 +500,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -551,18 +551,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1306202362
-MonoBehaviour:
+--- !u!225 &1306202362
+CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1306202357}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d36e6c21ec025e640ae90f0d7d1e86af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1341719920
 GameObject:
   m_ObjectHideFlags: 0
@@ -1041,6 +1041,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Inventory
       objectReference: {fileID: 0}
+    - target: {fileID: 6694785871526630361, guid: af09bbd167369664e984cdfd7d9cbd9a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6694785871526630360, guid: af09bbd167369664e984cdfd7d9cbd9a,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1156,5 +1161,35 @@ PrefabInstance:
       propertyPath: eventSystem
       value: 
       objectReference: {fileID: 1380041222}
+    - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
+        type: 3}
+      propertyPath: slots
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
+        type: 3}
+      propertyPath: rows
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
+        type: 3}
+      propertyPath: canvasGroup
+      value: 
+      objectReference: {fileID: 1306202362}
+    - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
+        type: 3}
+      propertyPath: fadeTime
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
+        type: 3}
+      propertyPath: name
+      value: Health
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: af09bbd167369664e984cdfd7d9cbd9a, type: 3}
