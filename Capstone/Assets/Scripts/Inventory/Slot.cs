@@ -10,7 +10,7 @@ using UnityEngine.Experimental.PlayerLoop;
 public class Slot : MonoBehaviour, IPointerClickHandler
 {
     // all the items that a slot has
-    private Stack<Items> items;
+    private Stack<Items> items = new Stack<Items>();
 
     // text for stacked items
     [SerializeField] private Text stackText;
@@ -159,7 +159,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     // using item if clicked
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Right && !GameObject.Find("Hover") && Inventory.CanvasGroup.alpha > 0)
+        if (eventData.button == PointerEventData.InputButton.Right && !GameObject.Find("Hover") && CloseOpenInventory.CanvasGroup.alpha > 0)
         {
             // using the item
             UseItem();

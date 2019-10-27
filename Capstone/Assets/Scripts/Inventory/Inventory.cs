@@ -40,16 +40,6 @@ public class Inventory : MonoBehaviour
     // get the canvas
     public Canvas canvas;
 
-    // to fade in and out inventory
-    private static CanvasGroup canvasGroup;
-
-    // fade in and out bools
-    private bool fadingIn;
-    private bool fadingOut;
-
-    // Timer of fade
-    public float fadeTime;
-
     // offset for hover icon
     private float HoverYffSet;
 
@@ -69,18 +59,9 @@ public class Inventory : MonoBehaviour
         set { emptySlot = value; }
     }
 
-    // return the cnavas group
-    public static CanvasGroup CanvasGroup
-    {
-        get { return Inventory.canvasGroup; }
-    }
-
     // Start is called before the first frame update
     void Start()
     {
-        // get the canvas group
-        canvasGroup = transform.parent.GetComponent<CanvasGroup>();
-
         // make the inventory
         CreateLayout();
     }
@@ -115,18 +96,9 @@ public class Inventory : MonoBehaviour
             HoverObject.transform.position = canvas.transform.TransformPoint(position);
         }
 
-        // open and close inventory when input key is pressed
-        if (Input.GetKeyDown(KeyCode.I))
+        if (CloseOpenInventory.CheckFade)
         {
-            if (canvasGroup.alpha > 0)
-            {
-                StartCoroutine("FadeOut"); // start the coroutine to close inventory
-                PutItemBack(); // put item back if it is selected 
-            }
-            else 
-            {
-                StartCoroutine("FadeIn"); // start the coroutine to open inventory
-            }
+            PutItemBack(); // put item back if it is selected 
         }
     }
 
@@ -259,7 +231,7 @@ public class Inventory : MonoBehaviour
     public void MoveItem(GameObject clicked)
     {
         // checking if nothing is in from
-        if (from == null && canvasGroup.alpha == 1)
+        if (from == null && CloseOpenInventory.CanvasGroup.alpha == 1)
         {
             //if the clicked slot is not empty 
             if (!clicked.GetComponent<Slot>().isEmpty && !GameObject.Find("Hover"))
@@ -331,81 +303,5 @@ public class Inventory : MonoBehaviour
             from.GetComponent<Image>().color = Color.white; // change the color back to white in the slot
             from = null;
         }
-    }
-
-    // timer to close inventory
-    private IEnumerator FadeOut()
-    {
-        if (!fadingOut)
-        {
-            fadingOut = true;
-            fadingIn = false;
-
-            // making sure to not fade in and out at the same time
-            StopCoroutine("FadeIn");
-
-            // Aptha value of inventory
-            float startAlpha = canvasGroup.alpha;
-
-            // the rate to fade out
-            float rate = 1.0f / fadeTime;
-
-            // progress of the fade 
-            float progress = 0.0f;
-
-            // keep fading out till the inventory is not visible
-            while (progress < 1.0)
-            {
-                // fading out the inventory
-                canvasGroup.alpha = Mathf.Lerp(startAlpha, 0, progress);
-
-                // increase the progress with the rate
-                progress += rate * Time.deltaTime;
-
-                yield return  null;
-            }
-            // when done fading
-            canvasGroup.alpha = 0;
-            fadingOut = false;
-        }
-    }
-
-    // timer to open inventory
-    private IEnumerator FadeIn()
-    {
-        if (!fadingIn)
-        {
-            fadingOut = false;
-            fadingIn = true;
-
-            // making sure to not fade in and out at the same time
-            StopCoroutine("FadeOut");
-
-            // Aptha value of inventory
-            float startAlpha = canvasGroup.alpha;
-
-            // the rate to fade out
-            float rate = 1.0f / fadeTime;
-
-            // progress of the fade 
-            float progress = 0.0f;
-
-            // keep fading in till the inventory is visible
-            while (progress < 1.0)
-            {
-                // fading out the inventory
-                canvasGroup.alpha = Mathf.Lerp(startAlpha, 1, progress);
-
-                // increase the progress with the rate
-                progress += rate * Time.deltaTime;
-
-                yield return null;
-            }
-
-            // when done fading
-            canvasGroup.alpha = 1;
-            fadingIn = false;
-        }
-    }
-
+    } 
 }
