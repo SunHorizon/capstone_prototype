@@ -11,11 +11,6 @@ public class ItemPickUp : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        //if (other.tag == "Item")
-        //{
-        //    Inventory.AddItem(other.GetComponent<Items>());
-        //}
-
         if (other.tag == "Item")
         {
             foreach (GameObject inv in inventory)

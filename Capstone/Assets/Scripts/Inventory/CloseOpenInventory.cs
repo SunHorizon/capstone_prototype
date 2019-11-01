@@ -18,7 +18,6 @@ public class CloseOpenInventory : MonoBehaviour
     // bool to check if fading out
     private static bool checkFade;
 
-
     // return the cnavas group
     public static CanvasGroup CanvasGroup
     {

@@ -52,6 +52,31 @@ public class Inventory : MonoBehaviour
     // event system to destory items in inventory
     public EventSystem eventSystem;
 
+    private static GameObject clicked;
+
+    // object for the stack size
+    public GameObject selectStackedSize;
+
+    // text for the stack size
+    public Text stackText;
+
+    // the amount to split
+    private int splitAmount;
+
+    // the max stack the item can move
+    private int MaxSizeCount;
+
+    // temp variable to put into when moving items 
+    private static Slot movingSlot;
+
+    // bool to check if the stack it open
+    public bool StackOpen;
+
+    // return stack
+    public bool getStack()
+    {
+        return StackOpen;
+    }
     // making getter and setter for empty slot 
     public static int EmptySlot
     {
@@ -64,6 +89,7 @@ public class Inventory : MonoBehaviour
     {
         // make the inventory
         CreateLayout();
+        movingSlot = GameObject.Find("MovingSlot").GetComponent<Slot>();
     }
 
     // Update is called once per frame
@@ -223,15 +249,37 @@ public class Inventory : MonoBehaviour
                 }
             }
         }
-
         return false;
     }
 
     // move items from slot to slot
     public void MoveItem(GameObject clicked)
     {
+        Inventory.clicked = clicked;
+
+        // if the are trying to split the item 
+        if (!movingSlot.isEmpty)
+        {
+            Slot temp = clicked.GetComponent<Slot>();
+
+            // if the slot is empty then add all the items in to slot
+            if (temp.isEmpty)
+            {
+                // add the items from moving slot to temp
+                temp.AddItems(movingSlot.Items);
+                // clear the items in the moving slot
+                movingSlot.Items.Clear();
+                // destroy the hover object
+                Destroy(GameObject.Find("Hover"));
+            }
+            // if the slot is not empty 
+            else if(!temp.isEmpty && movingSlot.CurrentItem.type == temp.CurrentItem.type && temp.isAvailable)
+            {
+                MergeStacks(movingSlot, temp);
+            }
+        }
         // checking if nothing is in from
-        if (from == null && CloseOpenInventory.CanvasGroup.alpha == 1)
+        else if (from == null && CloseOpenInventory.CanvasGroup.alpha == 1 && !Input.GetKey(KeyCode.LeftShift))
         {
             //if the clicked slot is not empty 
             if (!clicked.GetComponent<Slot>().isEmpty && !GameObject.Find("Hover"))
@@ -240,27 +288,10 @@ public class Inventory : MonoBehaviour
                 from = clicked.GetComponent<Slot>();
                 from.GetComponent<Image>().color = Color.gray;
 
-                // place the icon prefab for hover
-                HoverObject = (GameObject)Instantiate(IconPrefab);
-                HoverObject.GetComponent<Image>().sprite = clicked.GetComponent<Image>().sprite;
-                HoverObject.name = "Hover";
-
-                // get hover and clicked rect 
-                RectTransform hoverTransform = HoverObject.GetComponent<RectTransform>();
-                RectTransform ClickedTransform = clicked.GetComponent<RectTransform>();
-
-                // set the hover size of the clicked object
-                hoverTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ClickedTransform.sizeDelta.x);
-                hoverTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ClickedTransform.sizeDelta.y);
-
-                // make hover object child of canvas 
-                HoverObject.transform.SetParent(GameObject.Find("Canvas").transform, true);
-
-                // size the normal size of clicked object
-                HoverObject.transform.localScale = from.gameObject.transform.localScale;
+                CreateHoverIcon();
             }
         }
-        else if (to == null)
+        else if (to == null && !Input.GetKey(KeyCode.LeftShift))
         {
             to = clicked.GetComponent<Slot>();
             // destroy the hover object ones its placed
@@ -284,7 +315,6 @@ public class Inventory : MonoBehaviour
                 // add slot if not empty
                 from.AddItems(tempTo);
             }
-
             // change the color back to white
             from.GetComponent<Image>().color = Color.white;
 
@@ -292,6 +322,32 @@ public class Inventory : MonoBehaviour
             from = null;
             Destroy(GameObject.Find("Hover"));
         }
+    }
+
+    // hover icon funcation 
+    private void CreateHoverIcon()
+    {
+        // place the icon prefab for hover
+        HoverObject = (GameObject)Instantiate(IconPrefab);
+        HoverObject.GetComponent<Image>().sprite = clicked.GetComponent<Image>().sprite;
+        HoverObject.name = "Hover";
+
+        // get hover and clicked rect 
+        RectTransform hoverTransform = HoverObject.GetComponent<RectTransform>();
+        RectTransform ClickedTransform = clicked.GetComponent<RectTransform>();
+
+        // set the hover size of the clicked object
+        hoverTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ClickedTransform.sizeDelta.x);
+        hoverTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ClickedTransform.sizeDelta.y);
+
+        // make hover object child of canvas 
+        HoverObject.transform.SetParent(GameObject.Find("Canvas").transform, true);
+
+        // size the normal size of clicked object
+        HoverObject.transform.localScale = clicked.gameObject.transform.localScale;
+
+        HoverObject.transform.GetChild(0).GetComponent<Text>().text =
+            movingSlot.Items.Count > 1 ? movingSlot.Items.Count.ToString() : string.Empty;
     }
 
     // to put the items back in inventory when it is closed
@@ -303,5 +359,92 @@ public class Inventory : MonoBehaviour
             from.GetComponent<Image>().color = Color.white; // change the color back to white in the slot
             from = null;
         }
-    } 
+    }
+
+    // info of stack 
+    public void setStackInfo(int maxStackCount)
+    {
+        // set the stack size object to true
+        selectStackedSize.SetActive(true);
+
+        // stack is open 
+        StackOpen = true;
+
+        // split amount is 0 at the start
+        splitAmount = 0;
+        // max size count of the object
+        MaxSizeCount = maxStackCount;
+        // change the text to split amount
+        stackText.text = splitAmount.ToString();
+    }
+    
+    // function to slit stacks
+    public void splitStack()
+    {
+        // set it to false 
+        selectStackedSize.SetActive(false);
+
+        // stack is closed
+        StackOpen = false;
+
+        if (splitAmount == MaxSizeCount)
+        {
+            Debug.Log(MaxSizeCount);
+            MoveItem(clicked);
+        }
+
+        else if(splitAmount > 0)
+        {
+            // move the slot 
+            movingSlot.Items = clicked.GetComponent<Slot>().RemoveItems(splitAmount);
+
+            // make the hover icon
+            CreateHoverIcon();
+        }
+    }
+
+    // change the text for the stack object
+    public void ChangeStackText(int i)
+    {
+        splitAmount += i;
+
+        // if the split amount is 0 then set it to 0
+        if (splitAmount < 0)
+        {
+            splitAmount = 0;
+        }
+
+        // if the split amount lager then MaxSizeCount then set it to MaxSizeCount
+        if (splitAmount > MaxSizeCount)
+        {
+            splitAmount = MaxSizeCount;
+        }
+        // update the text 
+        stackText.text = splitAmount.ToString();
+
+        Debug.Log("Testing");
+    }
+
+    // function to merge stacks
+    public void MergeStacks(Slot source, Slot destination)
+    {
+        // the max size at the destination
+        int max = destination.CurrentItem.maxSize - destination.Items.Count;
+        
+        // amount of items to move
+        int count = source.Items.Count < max ? source.Items.Count : max;
+
+        // add the split items to the destination
+        for (int i = 0; i < count; i++)
+        {
+            destination.AddItem(source.RemoveItem());
+        }
+
+        // if the source is 0 clear it
+        if (source.Items.Count == 0)
+        {
+            source.ClearSlot();
+            Destroy(GameObject.Find("Hover"));
+        }
+    }
 }

@@ -29,17 +29,12 @@ public class SwitchInventory : MonoBehaviour
         weapon.onClick.AddListener(SwitchWeapon);
         key.onClick.AddListener(SwitchKeyItems);
 
-        {      
+        {
             // loop through all inventories
             foreach (GameObject inv in inventory)
             {
-                // set active to false if it is not desired inventory
-                inv.SetActive(false);
-                // set active to true if it is desired inventory
-                if (inv.name == InvconName)
-                {
-                    inv.SetActive(true);
-                }
+                // set active to true 
+                inv.SetActive(true);        
             }
         }
     }
@@ -47,31 +42,57 @@ public class SwitchInventory : MonoBehaviour
     // switch inventory to con
     void SwitchCon()
     {
-        // loop through all inventories
+        bool activeCheck = false;
+         // loop through all inventories
         foreach (GameObject inv in inventory)
         {
-            // set active to false if it is not desired inventory
-            inv.SetActive(false);
-            // set active to true if it is desired inventory
-            if (inv.name == InvconName)
+            if (inv.GetComponent<Inventory>().getStack())
             {
-                inv.SetActive(true);
+                activeCheck = true;
             }
+        }
+
+         // loop through all inventories
+        foreach (GameObject inv in inventory)
+        {
+            if (!GameObject.Find("Hover") && !activeCheck)
+            {          
+                // set active to false if it is not desired inventory
+                inv.SetActive(false);
+                // set active to true if it is desired inventory
+                if (inv.name == InvconName)
+                {
+                    inv.SetActive(true);
+                }
+            }  
         }
     }
 
     // switch inventory to Weapon
     void SwitchWeapon()
     {
+        bool activeCheck = false;
         // loop through all inventories
         foreach (GameObject inv in inventory)
         {
-            // set active to false if it is not desired inventory
-            inv.SetActive(false);
-            // set active to true if it is desired inventory
-            if (inv.name == InvWeaponName)
+            if (inv.GetComponent<Inventory>().getStack())
             {
-                inv.SetActive(true);
+                activeCheck = true;
+            }
+        }
+
+        // loop through all inventories
+        foreach (GameObject inv in inventory)
+        {
+            if (!GameObject.Find("Hover") && !activeCheck)
+            {
+                // set active to false if it is not desired inventory
+                inv.SetActive(false);
+                // set active to true if it is desired inventory
+                if (inv.name == InvWeaponName)
+                {
+                    inv.SetActive(true);
+                }
             }
         }
     }
@@ -79,15 +100,28 @@ public class SwitchInventory : MonoBehaviour
     // switch inventory to KeyItems
     void SwitchKeyItems()
     {
+        bool activeCheck = false;
         // loop through all inventories
         foreach (GameObject inv in inventory)
         {
-            // set active to false if it is not desired inventory
-            inv.SetActive(false);
-            // set active to true if it is desired inventory
-            if (inv.name == InvkeyName)
+            if (inv.GetComponent<Inventory>().getStack())
             {
-                inv.SetActive(true);
+                activeCheck = true;
+            }
+        }
+
+        // loop through all inventories
+        foreach (GameObject inv in inventory)
+        {
+            if (!GameObject.Find("Hover") && !activeCheck)
+            {
+                // set active to false if it is not desired inventory
+                inv.SetActive(false);
+                // set active to true if it is desired inventory
+                if (inv.name == InvkeyName)
+                {
+                    inv.SetActive(true);
+                }
             }
         }
     }

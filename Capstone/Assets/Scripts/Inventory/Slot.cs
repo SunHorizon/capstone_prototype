@@ -19,6 +19,8 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Sprite slotEmpty;
     [SerializeField] private Sprite slotHighlight;
 
+    private Inventory inv;
+
     // checking if the slot is empty
     public bool isEmpty
     {
@@ -66,12 +68,9 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         // setting the position of the text
         textRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, slotRect.sizeDelta.x);
         textRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, slotRect.sizeDelta.y);
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //// get the parent inventory of slot
+        //inv = transform.parent.GetComponent<Inventory>();
     }
     
     // add items
@@ -156,13 +155,69 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    // items to remove from slot
+    public Stack<Items> RemoveItems(int amount)
+    {
+        Stack<Items> tmp = new Stack<Items>();
+
+        // remove the items and out it into temp
+        for (int i = 0; i < amount; i++)
+        {
+            tmp.Push(items.Pop());
+        }
+
+        // update the stack text count if item count is larger then 1
+        stackText.text = items.Count > 1 ? items.Count.ToString() : string.Empty;
+
+        return tmp;
+    }
+
+    public Items RemoveItem()
+    {  
+        Items temp;
+
+        // pop one item
+        temp = items.Pop();
+
+        // update the stack text count if item count is larger then 1
+        stackText.text = items.Count > 1 ? items.Count.ToString() : string.Empty;
+
+        return temp;
+    }
+
     // using item if clicked
     public void OnPointerClick(PointerEventData eventData)
     {
+
+        // right click to use item
         if (eventData.button == PointerEventData.InputButton.Right && !GameObject.Find("Hover") && CloseOpenInventory.CanvasGroup.alpha > 0)
         {
-            // using the item
+            // using the item 
             UseItem();
+        }
+        // shift right click to split item
+        else if (eventData.button == PointerEventData.InputButton.Left && Input.GetKey(KeyCode.LeftShift) && !isEmpty && !GameObject.Find("Hover"))
+        {
+            // get the parent inventory of slot
+            if (!inv)
+            {
+                inv = transform.parent.GetComponent<Inventory>();
+            }
+           
+            Vector2 pos;
+
+            // get the position of the click slot
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(inv.canvas.transform as RectTransform,
+                Input.mousePosition, inv.canvas.worldCamera, out pos);
+
+            // set the stack object to active
+            inv.selectStackedSize.SetActive(true);
+
+            // put the stack object to where we clicked
+            inv.selectStackedSize.transform.position = inv.canvas.transform.TransformPoint(pos);
+
+            // set the stack info
+            inv.setStackInfo(items.Count);
         }
     }
 
