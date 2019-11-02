@@ -69,14 +69,6 @@ public class Inventory : MonoBehaviour
     // temp variable to put into when moving items 
     private static Slot movingSlot;
 
-    // bool to check if the stack it open
-    public bool StackOpen;
-
-    // return stack
-    public bool getStack()
-    {
-        return StackOpen;
-    }
     // making getter and setter for empty slot 
     public static int EmptySlot
     {
@@ -89,6 +81,7 @@ public class Inventory : MonoBehaviour
     {
         // make the inventory
         CreateLayout();
+
         movingSlot = GameObject.Find("MovingSlot").GetComponent<Slot>();
     }
 
@@ -108,6 +101,11 @@ public class Inventory : MonoBehaviour
                 to = null;
                 from = null;
                 emptySlot++;
+            }
+            else if (!eventSystem.IsPointerOverGameObject(-1) && !movingSlot.isEmpty)
+            {
+                movingSlot.ClearSlot();
+                Destroy(GameObject.Find("Hover"));
             }
         }
 
@@ -210,8 +208,15 @@ public class Inventory : MonoBehaviour
                     // if current item is the same type and it can stack
                     if (temp.CurrentItem.type == items.type && temp.isAvailable)
                     {
-                        temp.AddItem(items);
-                        return true;
+                        if (!movingSlot.isEmpty && clicked.GetComponent<Slot>() == temp.GetComponent<Slot>())
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            temp.AddItem(items);
+                            return true;
+                        }       
                     }
                 }
             }
@@ -256,7 +261,7 @@ public class Inventory : MonoBehaviour
     public void MoveItem(GameObject clicked)
     {
         Inventory.clicked = clicked;
-
+       
         // if the are trying to split the item 
         if (!movingSlot.isEmpty)
         {
@@ -279,7 +284,7 @@ public class Inventory : MonoBehaviour
             }
         }
         // checking if nothing is in from
-        else if (from == null && CloseOpenInventory.CanvasGroup.alpha == 1 && !Input.GetKey(KeyCode.LeftShift))
+        else if (from == null && CloseOpenInventory.CanvasGroup.alpha == 1 && !Input.GetKey(KeyCode.LeftShift) && !StackOpenClose.OpenCloseStack)
         {
             //if the clicked slot is not empty 
             if (!clicked.GetComponent<Slot>().isEmpty && !GameObject.Find("Hover"))
@@ -291,7 +296,7 @@ public class Inventory : MonoBehaviour
                 CreateHoverIcon();
             }
         }
-        else if (to == null && !Input.GetKey(KeyCode.LeftShift))
+        else if (to == null && !Input.GetKey(KeyCode.LeftShift) && !StackOpenClose.OpenCloseStack)
         {
             to = clicked.GetComponent<Slot>();
             // destroy the hover object ones its placed
@@ -359,6 +364,16 @@ public class Inventory : MonoBehaviour
             from.GetComponent<Image>().color = Color.white; // change the color back to white in the slot
             from = null;
         }
+        else if (!movingSlot.isEmpty)
+        {
+            Destroy(GameObject.Find("Hover"));
+            foreach (Items item in movingSlot.Items)
+            {
+                clicked.GetComponent<Slot>().AddItem(item);
+            }
+            movingSlot.ClearSlot(); 
+        }
+        selectStackedSize.SetActive(false);
     }
 
     // info of stack 
@@ -368,8 +383,8 @@ public class Inventory : MonoBehaviour
         selectStackedSize.SetActive(true);
 
         // stack is open 
-        StackOpen = true;
-
+        StackOpenClose.OpenCloseStack = true;
+  
         // split amount is 0 at the start
         splitAmount = 0;
         // max size count of the object
@@ -385,14 +400,12 @@ public class Inventory : MonoBehaviour
         selectStackedSize.SetActive(false);
 
         // stack is closed
-        StackOpen = false;
+        StackOpenClose.OpenCloseStack = false;
 
         if (splitAmount == MaxSizeCount)
         {
-            Debug.Log(MaxSizeCount);
             MoveItem(clicked);
         }
-
         else if(splitAmount > 0)
         {
             // move the slot 
@@ -422,7 +435,6 @@ public class Inventory : MonoBehaviour
         // update the text 
         stackText.text = splitAmount.ToString();
 
-        Debug.Log("Testing");
     }
 
     // function to merge stacks
@@ -438,12 +450,14 @@ public class Inventory : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             destination.AddItem(source.RemoveItem());
+            HoverObject.transform.GetChild(0).GetComponent<Text>().text = movingSlot.Items.Count.ToString();
         }
-
         // if the source is 0 clear it
         if (source.Items.Count == 0)
         {
             source.ClearSlot();
+            to = null;
+            from = null;
             Destroy(GameObject.Find("Hover"));
         }
     }

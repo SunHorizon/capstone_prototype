@@ -42,20 +42,10 @@ public class SwitchInventory : MonoBehaviour
     // switch inventory to con
     void SwitchCon()
     {
-        bool activeCheck = false;
          // loop through all inventories
         foreach (GameObject inv in inventory)
         {
-            if (inv.GetComponent<Inventory>().getStack())
-            {
-                activeCheck = true;
-            }
-        }
-
-         // loop through all inventories
-        foreach (GameObject inv in inventory)
-        {
-            if (!GameObject.Find("Hover") && !activeCheck)
+            if (!GameObject.Find("Hover") && !StackOpenClose.OpenCloseStack)
             {          
                 // set active to false if it is not desired inventory
                 inv.SetActive(false);
@@ -67,24 +57,13 @@ public class SwitchInventory : MonoBehaviour
             }  
         }
     }
-
-    // switch inventory to Weapon
+    
     void SwitchWeapon()
     {
-        bool activeCheck = false;
         // loop through all inventories
         foreach (GameObject inv in inventory)
         {
-            if (inv.GetComponent<Inventory>().getStack())
-            {
-                activeCheck = true;
-            }
-        }
-
-        // loop through all inventories
-        foreach (GameObject inv in inventory)
-        {
-            if (!GameObject.Find("Hover") && !activeCheck)
+            if (!GameObject.Find("Hover") && !StackOpenClose.OpenCloseStack)
             {
                 // set active to false if it is not desired inventory
                 inv.SetActive(false);
@@ -97,23 +76,12 @@ public class SwitchInventory : MonoBehaviour
         }
     }
 
-    // switch inventory to KeyItems
     void SwitchKeyItems()
     {
-        bool activeCheck = false;
         // loop through all inventories
         foreach (GameObject inv in inventory)
         {
-            if (inv.GetComponent<Inventory>().getStack())
-            {
-                activeCheck = true;
-            }
-        }
-
-        // loop through all inventories
-        foreach (GameObject inv in inventory)
-        {
-            if (!GameObject.Find("Hover") && !activeCheck)
+            if (!GameObject.Find("Hover") && !StackOpenClose.OpenCloseStack)
             {
                 // set active to false if it is not desired inventory
                 inv.SetActive(false);

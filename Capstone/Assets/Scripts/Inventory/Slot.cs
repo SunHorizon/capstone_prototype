@@ -190,7 +190,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     {
 
         // right click to use item
-        if (eventData.button == PointerEventData.InputButton.Right && !GameObject.Find("Hover") && CloseOpenInventory.CanvasGroup.alpha > 0)
+        if (eventData.button == PointerEventData.InputButton.Right && !GameObject.Find("Hover") && CloseOpenInventory.CanvasGroup.alpha > 0 && !StackOpenClose.OpenCloseStack)
         {
             // using the item 
             UseItem();
@@ -204,6 +204,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler
                 inv = transform.parent.GetComponent<Inventory>();
             }
            
+            Debug.Log(inv.name);
             Vector2 pos;
 
             // get the position of the click slot

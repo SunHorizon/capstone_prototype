@@ -710,7 +710,7 @@ PrefabInstance:
     - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
         type: 3}
       propertyPath: name
-      value: Health
+      value: KeyItems
       objectReference: {fileID: 0}
     - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
         type: 3}
@@ -1542,7 +1542,7 @@ PrefabInstance:
     - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
         type: 3}
       propertyPath: name
-      value: Health
+      value: Weapon
       objectReference: {fileID: 0}
     - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
         type: 3}
@@ -2054,7 +2054,7 @@ MonoBehaviour:
     type: 3}
   spriteHighlighted: {fileID: -3744600892691428516, guid: 83adc6960ac67f244ba526e20334329a,
     type: 3}
-  maxSize: 2
+  maxSize: 4
 --- !u!1 &1051715442
 GameObject:
   m_ObjectHideFlags: 0
@@ -4130,6 +4130,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2345776824672904740, guid: d525af3e019255e43a8d673f1e0a22dc,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2345776824672904742, guid: d525af3e019255e43a8d673f1e0a22dc,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -4249,11 +4254,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.z
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2345776824672904740, guid: d525af3e019255e43a8d673f1e0a22dc,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d525af3e019255e43a8d673f1e0a22dc, type: 3}
@@ -4432,7 +4432,7 @@ PrefabInstance:
     - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
         type: 3}
       propertyPath: name
-      value: Health
+      value: Consumbles
       objectReference: {fileID: 0}
     - target: {fileID: 6694785871526630181, guid: af09bbd167369664e984cdfd7d9cbd9a,
         type: 3}
