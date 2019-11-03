@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
@@ -15,14 +16,14 @@ public class Inventory : MonoBehaviour
     private float inventoryWidth, inventoryHeight;
 
     // number of slots and rows for the inventory
-    [SerializeField] private int slots;
-    [SerializeField] private int rows;
+    [SerializeField] public int slots;
+    [SerializeField] public int rows;
 
     // spacing between each slot
-    [SerializeField] private float slotPaddingLeft, slotPaddingTop;
+    [SerializeField] public float slotPaddingLeft, slotPaddingTop;
 
     // size of slot which is also size of the inventory
-    [SerializeField] private float slotSize;
+    [SerializeField] public float slotSize;
 
     // image of the slot
     [SerializeField] private GameObject slotPrefab;
@@ -35,7 +36,7 @@ public class Inventory : MonoBehaviour
     public string name;
 
     // list of all the slots in the inventory
-    private List<GameObject> allSlots;
+    public List<GameObject> allSlots;
 
     // get the canvas
     public Canvas canvas;
@@ -56,6 +57,7 @@ public class Inventory : MonoBehaviour
 
     // object for the stack size
     public GameObject selectStackedSize;
+    private static GameObject selectStackedSizeStatic;
 
     // text for the stack size
     public Text stackText;
@@ -68,6 +70,18 @@ public class Inventory : MonoBehaviour
 
     // temp variable to put into when moving items 
     private static Slot movingSlot;
+
+    // object for tool tip static
+    private static GameObject toolTip;
+    // tool tip object
+    public GameObject toolTipObject;
+    // text for the size of the tool tip
+    public Text SizeTextObject;
+    private static Text SizeText;
+    // text to show
+    public Text visualTextObject;
+    private static Text VisualText;
+
 
     // making getter and setter for empty slot 
     public static int EmptySlot
@@ -83,6 +97,14 @@ public class Inventory : MonoBehaviour
         CreateLayout();
 
         movingSlot = GameObject.Find("MovingSlot").GetComponent<Slot>();
+
+        // set the tooltip objects
+        toolTip = toolTipObject;
+        SizeText = SizeTextObject;
+        VisualText = visualTextObject;
+
+
+        selectStackedSizeStatic = selectStackedSize;
     }
 
     // Update is called once per frame
@@ -127,8 +149,18 @@ public class Inventory : MonoBehaviour
     }
 
     // create the inventory
-    private void CreateLayout()
+    public void CreateLayout()
     {
+        // if all slots exits destroy it
+        if (allSlots != null)
+        {
+            // loop through all the slots and destroy it
+            foreach (GameObject slo in allSlots)
+            {
+                Destroy(slo);
+            }
+        }
+
         // instantiate the slots
         allSlots = new List<GameObject>();
 
@@ -173,7 +205,6 @@ public class Inventory : MonoBehaviour
                 slotRect.localPosition = inventoryRect.localPosition + new Vector3(slotPaddingLeft + (x * slotPaddingLeft) + (slotSize * x), -slotPaddingTop * (y + 1) - (slotSize *  y));
                
 
-
                 // setting the size
                 slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, slotSize * canvas.scaleFactor);
                 slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, slotSize * canvas.scaleFactor);
@@ -184,7 +215,6 @@ public class Inventory : MonoBehaviour
 
             }
         }
-
     }
 
     // add item to slot
@@ -382,6 +412,8 @@ public class Inventory : MonoBehaviour
         // set the stack size object to true
         selectStackedSize.SetActive(true);
 
+        toolTip.SetActive(false);
+
         // stack is open 
         StackOpenClose.OpenCloseStack = true;
   
@@ -460,5 +492,41 @@ public class Inventory : MonoBehaviour
             from = null;
             Destroy(GameObject.Find("Hover"));
         }
+    }
+
+    // show the tool tip function
+    public void ShowToolTip(GameObject slot)
+    {
+        // get the Component of slot
+        Slot tempSlot = slot.GetComponent<Slot>();
+        
+        // if the slot is not empty
+        if (!tempSlot.isEmpty && HoverObject == null && !selectStackedSizeStatic.activeSelf)
+        {
+            // set the visual Text
+            VisualText.text = tempSlot.CurrentItem.GetToolTip();
+            //set the size of the text
+            SizeText.text = VisualText.text;
+
+            // set the tool tip to active
+            toolTip.SetActive(true);
+
+            // set the x pos for the tool tip
+            float xPos = slot.transform.position.x + slotPaddingLeft;
+
+            // set the y pos for the tool tip
+            float yPos = slot.transform.position.y - slot.GetComponent<RectTransform>().sizeDelta.y - slotPaddingTop;
+
+            // set the pos of the tool tip
+            toolTip.transform.position = new Vector2(xPos, yPos);
+        }
+
+    }
+
+    // hide the tool tip function
+    public void HideToolTip()
+    {
+        // set the tool tip to false
+        toolTip.SetActive(false);
     }
 }

@@ -46,12 +46,15 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         set { items = value; }
     }
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         // making the list of items
         items = new Stack<Items>();
+    }
 
+    // Start is called before the first frame update
+    void Start()
+    {
         // getting the rect of this slot
         RectTransform slotRect = GetComponent<RectTransform>();
 
@@ -134,23 +137,26 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         // if not empty pop item for stack and update text
         if (!isEmpty)
         {
-            items.Pop().Use();
+            if (items.Peek().tag != "Weapon")
+            {
+                items.Pop().Use();
 
-            // update the string 
-            if (items.Count > 1)
-            {
-                stackText.text = items.Count.ToString();
-            }
-            else
-            {
-                stackText.text = string.Empty;
-            }
+                // update the string 
+                if (items.Count > 1)
+                {
+                    stackText.text = items.Count.ToString();
+                }
+                else
+                {
+                    stackText.text = string.Empty;
+                }
 
-            // if the slot is empty change the sprite to the default one
-            if (isEmpty)
-            {
-                ChangeSprite(slotEmpty, slotHighlight);
-                Inventory.EmptySlot++;
+                // if the slot is empty change the sprite to the default one
+                if (isEmpty)
+                {
+                    ChangeSprite(slotEmpty, slotHighlight);
+                    Inventory.EmptySlot++;
+                }
             }
         }
     }
@@ -203,8 +209,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler
             {
                 inv = transform.parent.GetComponent<Inventory>();
             }
-           
-            Debug.Log(inv.name);
+
             Vector2 pos;
 
             // get the position of the click slot
