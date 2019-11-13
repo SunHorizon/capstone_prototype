@@ -36,7 +36,7 @@ public class LoadSaveInventory : MonoBehaviour
             // saving the content the PlayerPrefs
             PlayerPrefs.SetString("content"+ invNum, content);
             PlayerPrefs.SetInt("slots"+ invNum, inv.slots);
-            PlayerPrefs.SetInt("rows"+ invNum, inv.rows);
+            PlayerPrefs.SetInt("rows" + invNum, inv.rows);
             PlayerPrefs.SetFloat("slotPaddingLeft"+ invNum, inv.slotPaddingLeft);
             PlayerPrefs.SetFloat("slotPaddingTop"+ invNum, inv.slotPaddingTop);
             PlayerPrefs.SetFloat("slotSize"+ invNum, inv.slotSize);
@@ -59,16 +59,16 @@ public class LoadSaveInventory : MonoBehaviour
 
             // load the inventory data
             inv.slots = PlayerPrefs.GetInt("slots"+ invNum);
-            inv.rows = PlayerPrefs.GetInt("rows");
+            inv.rows = PlayerPrefs.GetInt("rows" + invNum);
             inv.slotPaddingLeft = PlayerPrefs.GetFloat("slotPaddingLeft"+ invNum);
             inv.slotPaddingTop = PlayerPrefs.GetFloat("slotPaddingTop"+ invNum);
             inv.slotSize = PlayerPrefs.GetFloat("slotSize"+ invNum);
 
             //inventoryRect.position = new Vector3(PlayerPrefs.GetFloat("xPos"), PlayerPrefs.GetFloat("yPos"), inventoryRect.position.z);
 
+
             // create the layout
             inv.CreateLayout();
-
 
             // put the content back into the inventory
             //0-Mana-3

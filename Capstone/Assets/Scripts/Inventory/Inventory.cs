@@ -172,6 +172,8 @@ public class Inventory : MonoBehaviour
 
         // calculate the inventory width
         inventoryWidth = (slots / rows) * (slotSize + slotPaddingLeft) + slotPaddingLeft;
+     
+
 
         // calculate the inventory height
         inventoryHeight = rows * (slotSize + slotPaddingTop) + slotPaddingTop;
