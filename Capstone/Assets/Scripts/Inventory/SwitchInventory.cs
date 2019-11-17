@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class SwitchInventory : MonoBehaviour
 {
 
-    // buttons for the consumables, weapon, and key items 
+    // buttons for the consumables, weapon, and key itemScript 
     private Button con, weapon, key;
     [SerializeField] private string conName, WeaponName, keyName;
 

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ItemContainer xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Weapons>
+    <Item xsi:type="Weapon">
+      <itemType>TWOHAND</itemType>
+      <quality>EPIC</quality>
+      <SpriteNeutral>WeaponNeutreal</SpriteNeutral>
+      <SpriteHighlighted>WeaponHighlighted</SpriteHighlighted>
+      <MaxSize>1</MaxSize>
+      <ItemName>Long Sword</ItemName>
+      <Description>Havey Long Word</Description>
+      <Intellect>2</Intellect>
+      <Agility>4</Agility>
+      <Stamina>5</Stamina>
+      <Strength>3</Strength>
+      <AttackSpeed>2</AttackSpeed>
+    </Item>
+  </Weapons>
+  <Consumable />
+  <Equipment />
+</ItemContainer>

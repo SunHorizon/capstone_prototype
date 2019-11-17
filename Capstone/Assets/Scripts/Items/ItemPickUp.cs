@@ -17,7 +17,7 @@ public class ItemPickUp : MonoBehaviour
             {
                 if (inv.name == InvconName)
                 {
-                    inv.GetComponent<Inventory>().AddItem(other.GetComponent<Items>());
+                    inv.GetComponent<Inventory>().AddItem(other.GetComponent<ItemScript>());
                     
                 }
             }      
@@ -29,7 +29,7 @@ public class ItemPickUp : MonoBehaviour
             {
                 if (inv.name == InvWeaponName)
                 {
-                    inv.GetComponent<Inventory>().AddItem(other.GetComponent<Items>());
+                    inv.GetComponent<Inventory>().AddItem(other.GetComponent<ItemScript>());
                 }
             }
         }

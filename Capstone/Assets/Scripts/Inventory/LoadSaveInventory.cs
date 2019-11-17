@@ -7,10 +7,6 @@ public class LoadSaveInventory : MonoBehaviour
 {
     [SerializeField] private Inventory[] inventory;
 
-    // prototype of the items
-    public GameObject Mana;
-    public GameObject Health;
-    public GameObject Sword;
 
     public void SaveInventory()
     {
@@ -29,7 +25,7 @@ public class LoadSaveInventory : MonoBehaviour
                 {
                     // "slot-type-count"
                     // saving the data in the string
-                    content += i + "-" + tmp.CurrentItem.type.ToString() + "-" + tmp.Items.Count.ToString() + ";";
+                    content += i + "-" + tmp.CurrentItemScript.type.ToString() + "-" + tmp.Items.Count.ToString() + ";";
                 }
             }
 
@@ -83,27 +79,27 @@ public class LoadSaveInventory : MonoBehaviour
                 // get the slot 
                 int index = Int32.Parse(splitValues[0]); //"0"
 
-                // get the item type
+                // get the itemScript type
                 ItemTpye type = (ItemTpye) Enum.Parse(typeof(ItemTpye), splitValues[1]); // "mana"
 
-                // get the amount of items in the slot
+                // get the amount of itemScript in the slot
                 int amount = Int32.Parse(splitValues[2]); //"3"
 
-                // place the items in the slot
+                // place the itemScript in the slot
                 for (int i = 0; i < amount; i++)
                 {
-                    // add the items into the slot of inventory
+                    // add the itemScript into the slot of inventory
                     switch (type)
                     {
-                        case ItemTpye.Mana:
-                            inv.allSlots[index].GetComponent<Slot>().AddItem(Mana.GetComponent<Items>());
-                            break;
-                        case ItemTpye.Health:
-                            inv.allSlots[index].GetComponent<Slot>().AddItem(Health.GetComponent<Items>());
-                            break;
-                        case ItemTpye.Sword:
-                            inv.allSlots[index].GetComponent<Slot>().AddItem(Sword.GetComponent<Items>());
-                            break;
+                        //case ItemTpye.Mana:
+                        //    inv.allSlots[index].GetComponent<Slot>().AddItem(InventoryManager.Instance.Mana.GetComponent<ItemScript>());
+                        //    break;
+                        //case ItemTpye.Health:
+                        //    inv.allSlots[index].GetComponent<Slot>().AddItem(InventoryManager.Instance.Health.GetComponent<ItemScript>());
+                        //    break;
+                        //case ItemTpye.Sword:
+                        //    inv.allSlots[index].GetComponent<Slot>().AddItem(InventoryManager.Instance.Sword.GetComponent<ItemScript>());
+                        //    break;
                     }
                 }
 

@@ -9,17 +9,16 @@ using UnityEngine.Experimental.PlayerLoop;
 
 public class Slot : MonoBehaviour, IPointerClickHandler
 {
-    // all the items that a slot has
-    private Stack<Items> items = new Stack<Items>();
+    // all the itemScript that a slot has
+    private Stack<ItemScript> items = new Stack<ItemScript>();
 
-    // text for stacked items
+    // text for stacked itemScript
     [SerializeField] private Text stackText;
 
     // sprites if the slot is empty
     [SerializeField] private Sprite slotEmpty;
     [SerializeField] private Sprite slotHighlight;
 
-    private Inventory inv;
 
     // checking if the slot is empty
     public bool isEmpty
@@ -27,20 +26,20 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         get { return items.Count == 0; }
     }
 
-    // return the current item in the slot
-    public Items CurrentItem
+    // return the current itemScript in the slot
+    public ItemScript CurrentItemScript
     {
         get { return items.Peek(); }
     }
 
-    // checking if item can stack
+    // checking if itemScript can stack
     public bool isAvailable
     {
-        get { return CurrentItem.maxSize > items.Count; }
+        get { return CurrentItemScript.maxSize > items.Count; }
     }
 
-    // getter and setting for items
-    public Stack<Items> Items
+    // getter and setting for itemScript
+    public Stack<ItemScript> Items
     {
         get { return items; }
         set { items = value; }
@@ -48,8 +47,8 @@ public class Slot : MonoBehaviour, IPointerClickHandler
 
     void Awake()
     {
-        // making the list of items
-        items = new Stack<Items>();
+        // making the list of itemScript
+        items = new Stack<ItemScript>();
     }
 
     // Start is called before the first frame update
@@ -76,28 +75,28 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         //inv = transform.parent.GetComponent<Inventory>();
     }
     
-    // add items
-    public void AddItem(Items item)
+    // add itemScript
+    public void AddItem(ItemScript itemScript)
     {
-        // adding the item to the slot
-        items.Push(item);
+        // adding the itemScript to the slot
+        items.Push(itemScript);
 
-        // checking if there is more the one item
+        // checking if there is more the one itemScript
         if (items.Count > 1)
         {
-            // adding the number of items to the text
+            // adding the number of itemScript to the text
             stackText.text = items.Count.ToString();
         }
         
         // change the sprite
-        ChangeSprite(item.GetSpriteNeutral(), item.GetSpriteHighlighted());
+        ChangeSprite(itemScript.GetSpriteNeutral(), itemScript.GetSpriteHighlighted());
 
     }
 
-    // adding stack of items for slot movement
-    public void AddItems(Stack<Items> Items)
+    // adding stack of itemScript for slot movement
+    public void AddItems(Stack<ItemScript> Items)
     {
-        this.items = new Stack<Items>(Items);
+        this.items = new Stack<ItemScript>(Items);
 
         // update the string 
         if (items.Count > 1)
@@ -109,7 +108,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler
             stackText.text = string.Empty;
         }
 
-        ChangeSprite(CurrentItem.GetSpriteNeutral(), CurrentItem.GetSpriteHighlighted());
+        ChangeSprite(CurrentItemScript.GetSpriteNeutral(), CurrentItemScript.GetSpriteHighlighted());
     }
 
     // changing the sprite of slot
@@ -131,10 +130,10 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         GetComponent<Button>().spriteState = st;
     }
 
-    // use item
+    // use itemScript
     private void UseItem()
     {
-        // if not empty pop item for stack and update text
+        // if not empty pop itemScript for stack and update text
         if (!isEmpty)
         {
             if (items.Peek().tag != "Weapon")
@@ -155,75 +154,70 @@ public class Slot : MonoBehaviour, IPointerClickHandler
                 if (isEmpty)
                 {
                     ChangeSprite(slotEmpty, slotHighlight);
-                    Inventory.EmptySlot++;
+                    transform.parent.GetComponent<Inventory>().EmptySlot++;
                 }
             }
         }
     }
 
-    // items to remove from slot
-    public Stack<Items> RemoveItems(int amount)
+    // itemScript to remove from slot
+    public Stack<ItemScript> RemoveItems(int amount)
     {
-        Stack<Items> tmp = new Stack<Items>();
+        Stack<ItemScript> tmp = new Stack<ItemScript>();
 
-        // remove the items and out it into temp
+        // remove the itemScript and out it into temp
         for (int i = 0; i < amount; i++)
         {
             tmp.Push(items.Pop());
         }
 
-        // update the stack text count if item count is larger then 1
+        // update the stack text count if itemScript count is larger then 1
         stackText.text = items.Count > 1 ? items.Count.ToString() : string.Empty;
 
         return tmp;
     }
 
-    public Items RemoveItem()
+    public ItemScript RemoveItem()
     {  
-        Items temp;
+        ItemScript temp;
 
-        // pop one item
+        // pop one itemScript
         temp = items.Pop();
 
-        // update the stack text count if item count is larger then 1
+        // update the stack text count if itemScript count is larger then 1
         stackText.text = items.Count > 1 ? items.Count.ToString() : string.Empty;
 
         return temp;
     }
 
-    // using item if clicked
+    // using itemScript if clicked
     public void OnPointerClick(PointerEventData eventData)
     {
 
-        // right click to use item
+        // right click to use itemScript
         if (eventData.button == PointerEventData.InputButton.Right && !GameObject.Find("Hover") && CloseOpenInventory.CanvasGroup.alpha > 0 && !StackOpenClose.OpenCloseStack)
         {
-            // using the item 
+            // using the itemScript 
             UseItem();
         }
-        // shift right click to split item
+        // shift right click to split itemScript
         else if (eventData.button == PointerEventData.InputButton.Left && Input.GetKey(KeyCode.LeftShift) && !isEmpty && !GameObject.Find("Hover"))
         {
-            // get the parent inventory of slot
-            if (!inv)
-            {
-                inv = transform.parent.GetComponent<Inventory>();
-            }
-
+ 
             Vector2 pos;
 
             // get the position of the click slot
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(inv.canvas.transform as RectTransform,
-                Input.mousePosition, inv.canvas.worldCamera, out pos);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(InventoryManager.Instance.canvas.transform as RectTransform,
+                Input.mousePosition, InventoryManager.Instance.canvas.worldCamera, out pos);
 
             // set the stack object to active
-            inv.selectStackedSize.SetActive(true);
+            InventoryManager.Instance.selectStackedSize.SetActive(true);
 
             // put the stack object to where we clicked
-            inv.selectStackedSize.transform.position = inv.canvas.transform.TransformPoint(pos);
+            InventoryManager.Instance.selectStackedSize.transform.position = InventoryManager.Instance.canvas.transform.TransformPoint(pos);
 
             // set the stack info
-            inv.setStackInfo(items.Count);
+            InventoryManager.Instance.setStackInfo(items.Count);
         }
     }
 

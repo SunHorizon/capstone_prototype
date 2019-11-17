@@ -25,70 +25,28 @@ public class Inventory : MonoBehaviour
     // size of slot which is also size of the inventory
     [SerializeField] public float slotSize;
 
-    // image of the slot
-    [SerializeField] private GameObject slotPrefab;
 
-    // hover prefab and object 
-    [SerializeField] private GameObject IconPrefab;
-    [SerializeField] private static GameObject HoverObject;
-
-    // name of the inventory to see what type of item to store
+    // name of the inventory to see what type of itemScript to store
     public string name;
 
     // list of all the slots in the inventory
     public List<GameObject> allSlots;
 
-    // get the canvas
-    public Canvas canvas;
-
+  
     // offset for hover icon
     private float HoverYffSet;
 
     // checking how many empty slots are left
-    private static int emptySlot;
-
-    // slots moving from and to 
-    private static Slot from, to;
-
-    // event system to destory items in inventory
-    public EventSystem eventSystem;
-
-    private static GameObject clicked;
-
-    // object for the stack size
-    public GameObject selectStackedSize;
-    private static GameObject selectStackedSizeStatic;
-
-    // text for the stack size
-    public Text stackText;
-
-    // the amount to split
-    private int splitAmount;
-
-    // the max stack the item can move
-    private int MaxSizeCount;
-
-    // temp variable to put into when moving items 
-    private static Slot movingSlot;
-
-    // object for tool tip static
-    private static GameObject toolTip;
-    // tool tip object
-    public GameObject toolTipObject;
-    // text for the size of the tool tip
-    public Text SizeTextObject;
-    private static Text SizeText;
-    // text to show
-    public Text visualTextObject;
-    private static Text VisualText;
+    private int emptySlot;
 
 
     // making getter and setter for empty slot 
-    public static int EmptySlot
+    public int EmptySlot
     {
         get { return emptySlot; }
         set { emptySlot = value; }
     }
+
 
     // Start is called before the first frame update
     void Start()
@@ -96,55 +54,48 @@ public class Inventory : MonoBehaviour
         // make the inventory
         CreateLayout();
 
-        movingSlot = GameObject.Find("MovingSlot").GetComponent<Slot>();
+        InventoryManager.Instance.MovingSlot = GameObject.Find("MovingSlot").GetComponent<Slot>();
 
-        // set the tooltip objects
-        toolTip = toolTipObject;
-        SizeText = SizeTextObject;
-        VisualText = visualTextObject;
-
-
-        selectStackedSizeStatic = selectStackedSize;
     }
 
     // Update is called once per frame
     void Update()
     {
-        // delete item when drag out of inventory
+        // delete itemScript when drag out of inventory
         if (Input.GetMouseButton(0))
         {
-            if (!eventSystem.IsPointerOverGameObject(-1) && from != null)
+            if (!InventoryManager.Instance.eventSystem.IsPointerOverGameObject(-1) && InventoryManager.Instance.From != null)
             {
-                from.GetComponent<Image>().color = Color.white; // reset the color
-                from.ClearSlot(); // clear all the items from the slot 
+                InventoryManager.Instance.From.GetComponent<Image>().color = Color.white; // reset the color
+                InventoryManager.Instance.From.ClearSlot(); // clear all the itemScript from the slot 
                 Destroy(GameObject.Find("Hover")); // Destroy all the object
 
                 // reset all the objects
-                to = null;
-                from = null;
+                InventoryManager.Instance.To = null;
+                InventoryManager.Instance.From = null;
                 emptySlot++;
             }
-            else if (!eventSystem.IsPointerOverGameObject(-1) && !movingSlot.isEmpty)
+            else if (!InventoryManager.Instance.eventSystem.IsPointerOverGameObject(-1) && !InventoryManager.Instance.MovingSlot.isEmpty)
             {
-                movingSlot.ClearSlot();
+                InventoryManager.Instance.MovingSlot.ClearSlot();
                 Destroy(GameObject.Find("Hover"));
             }
         }
 
         // move object 
-        if (HoverObject != null)
+        if (InventoryManager.Instance.HoverObject != null)
         {
             // follows the mouse around
             Vector2 position;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, Input.mousePosition,
-                canvas.worldCamera, out position);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(InventoryManager.Instance.canvas.transform as RectTransform, Input.mousePosition,
+                InventoryManager.Instance.canvas.worldCamera, out position);
             position.Set(position.x, position.y - HoverYffSet);
-            HoverObject.transform.position = canvas.transform.TransformPoint(position);
+            InventoryManager.Instance.HoverObject.transform.position = InventoryManager.Instance.canvas.transform.TransformPoint(position);
         }
 
         if (CloseOpenInventory.CheckFade)
         {
-            PutItemBack(); // put item back if it is selected 
+            PutItemBack(); // put itemScript back if it is selected 
         }
     }
 
@@ -192,7 +143,7 @@ public class Inventory : MonoBehaviour
             for (int x = 0; x < columns; x++)
             {
                 // make the new slot
-                GameObject newSlot = (GameObject)Instantiate(slotPrefab);
+                GameObject newSlot = (GameObject)Instantiate(InventoryManager.Instance.slotPrefab);
 
                 // get the rect transform of the new slot
                 RectTransform slotRect = newSlot.GetComponent<RectTransform>();
@@ -208,8 +159,8 @@ public class Inventory : MonoBehaviour
                
 
                 // setting the size
-                slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, slotSize * canvas.scaleFactor);
-                slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, slotSize * canvas.scaleFactor);
+                slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, slotSize * InventoryManager.Instance.canvas.scaleFactor);
+                slotRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, slotSize * InventoryManager.Instance.canvas.scaleFactor);
                 newSlot.transform.SetParent(this.transform);
 
                 // adding the new slot to the list
@@ -219,34 +170,34 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    // add item to slot
-    public bool AddItem(Items items)
+    // add itemScript to slot
+    public bool AddItem(ItemScript itemScript)
     {
-        // add item if item is stackable
-        if (items.maxSize == 1)
+        // add itemScript if itemScript is stackable
+        if (itemScript.maxSize == 1)
         {
-            PlaceEmpty(items);
+            PlaceEmpty(itemScript);
             return true;
         }
         else
         {
-            // if item can stack 
+            // if itemScript can stack 
             foreach (GameObject slot in allSlots)
             {
                 Slot temp = slot.GetComponent<Slot>();
                 // is the slot is not empty. stack it
                 if (!temp.isEmpty)
                 {
-                    // if current item is the same type and it can stack
-                    if (temp.CurrentItem.type == items.type && temp.isAvailable)
+                    // if current itemScript is the same type and it can stack
+                    if (temp.CurrentItemScript.type == itemScript.type && temp.isAvailable)
                     {
-                        if (!movingSlot.isEmpty && clicked.GetComponent<Slot>() == temp.GetComponent<Slot>())
+                        if (!InventoryManager.Instance.MovingSlot.isEmpty && InventoryManager.Instance.Clicked.GetComponent<Slot>() == temp.GetComponent<Slot>())
                         {
                             continue;
                         }
                         else
                         {
-                            temp.AddItem(items);
+                            temp.AddItem(itemScript);
                             return true;
                         }       
                     }
@@ -256,15 +207,15 @@ public class Inventory : MonoBehaviour
             // if can't find the slot to stack
             if (emptySlot > 0)
             {
-                PlaceEmpty(items);
+                PlaceEmpty(itemScript);
             }
         }
 
         return false;
     }
 
-    // place the item in the empty slot
-    private bool PlaceEmpty(Items item)
+    // place the itemScript in the empty slot
+    private bool PlaceEmpty(ItemScript itemScript)
     {
         // checking if there are any empty slots
         if (emptySlot > 0)
@@ -278,7 +229,7 @@ public class Inventory : MonoBehaviour
                 if (temp.isEmpty)
                 {
                     // adding the slot
-                    temp.AddItem(item);
+                    temp.AddItem(itemScript);
 
                     // subtract empty Slot
                     emptySlot--;
@@ -289,74 +240,74 @@ public class Inventory : MonoBehaviour
         return false;
     }
 
-    // move items from slot to slot
+    // move itemScript from slot to slot
     public void MoveItem(GameObject clicked)
     {
-        Inventory.clicked = clicked;
+        InventoryManager.Instance.Clicked = clicked;
        
-        // if the are trying to split the item 
-        if (!movingSlot.isEmpty)
+        // if the are trying to split the itemScript 
+        if (!InventoryManager.Instance.MovingSlot.isEmpty)
         {
             Slot temp = clicked.GetComponent<Slot>();
 
-            // if the slot is empty then add all the items in to slot
+            // if the slot is empty then add all the itemScript in to slot
             if (temp.isEmpty)
             {
-                // add the items from moving slot to temp
-                temp.AddItems(movingSlot.Items);
-                // clear the items in the moving slot
-                movingSlot.Items.Clear();
+                // add the itemScript from moving slot to temp
+                temp.AddItems(InventoryManager.Instance.MovingSlot.Items);
+                // clear the itemScript in the moving slot
+                InventoryManager.Instance.MovingSlot.Items.Clear();
                 // destroy the hover object
                 Destroy(GameObject.Find("Hover"));
             }
             // if the slot is not empty 
-            else if(!temp.isEmpty && movingSlot.CurrentItem.type == temp.CurrentItem.type && temp.isAvailable)
+            else if(!temp.isEmpty && InventoryManager.Instance.MovingSlot.CurrentItemScript.type == temp.CurrentItemScript.type && temp.isAvailable)
             {
-                MergeStacks(movingSlot, temp);
+                MergeStacks(InventoryManager.Instance.MovingSlot, temp);
             }
         }
         // checking if nothing is in from
-        else if (from == null && CloseOpenInventory.CanvasGroup.alpha == 1 && !Input.GetKey(KeyCode.LeftShift) && !StackOpenClose.OpenCloseStack)
+        else if (InventoryManager.Instance.From == null && CloseOpenInventory.CanvasGroup.alpha == 1 && !Input.GetKey(KeyCode.LeftShift) && !StackOpenClose.OpenCloseStack)
         {
             //if the clicked slot is not empty 
             if (!clicked.GetComponent<Slot>().isEmpty && !GameObject.Find("Hover"))
             {
-                // place the clicked item in from 
-                from = clicked.GetComponent<Slot>();
-                from.GetComponent<Image>().color = Color.gray;
+                // place the clicked itemScript in from 
+                InventoryManager.Instance.From = clicked.GetComponent<Slot>();
+                InventoryManager.Instance.From.GetComponent<Image>().color = Color.gray;
 
                 CreateHoverIcon();
             }
         }
-        else if (to == null && !Input.GetKey(KeyCode.LeftShift) && !StackOpenClose.OpenCloseStack)
+        else if (InventoryManager.Instance.To == null && !Input.GetKey(KeyCode.LeftShift) && !StackOpenClose.OpenCloseStack)
         {
-            to = clicked.GetComponent<Slot>();
+            InventoryManager.Instance.To = clicked.GetComponent<Slot>();
             // destroy the hover object ones its placed
             Destroy(GameObject.Find("Hover"));
 
         }
-        if (to != null && from != null)
+        if (InventoryManager.Instance.To != null && InventoryManager.Instance.From != null)
         {
-            // swap items 
-            Stack<Items> tempTo = new Stack<Items>(to.Items);
-            // add the selected item to to
-            to.AddItems(from.Items);
+            // swap itemScript 
+            Stack<ItemScript> tempTo = new Stack<ItemScript>(InventoryManager.Instance.To.Items);
+            // add the selected itemScript to to
+            InventoryManager.Instance.To.AddItems(InventoryManager.Instance.From.Items);
 
             // if slot is empty the clear it 
             if (tempTo.Count == 0)
             {
-                from.ClearSlot();
+                InventoryManager.Instance.From.ClearSlot();
             }
             else
             {
                 // add slot if not empty
-                from.AddItems(tempTo);
+                InventoryManager.Instance.From.AddItems(tempTo);
             }
             // change the color back to white
-            from.GetComponent<Image>().color = Color.white;
+            InventoryManager.Instance.From.GetComponent<Image>().color = Color.white;
 
-            to = null;
-            from = null;
+            InventoryManager.Instance.To = null;
+            InventoryManager.Instance.From = null;
             Destroy(GameObject.Find("Hover"));
         }
     }
@@ -365,85 +316,66 @@ public class Inventory : MonoBehaviour
     private void CreateHoverIcon()
     {
         // place the icon prefab for hover
-        HoverObject = (GameObject)Instantiate(IconPrefab);
-        HoverObject.GetComponent<Image>().sprite = clicked.GetComponent<Image>().sprite;
-        HoverObject.name = "Hover";
+        InventoryManager.Instance.HoverObject = (GameObject)Instantiate(InventoryManager.Instance.IconPrefab);
+        InventoryManager.Instance.HoverObject.GetComponent<Image>().sprite = InventoryManager.Instance.Clicked.GetComponent<Image>().sprite;
+        InventoryManager.Instance.HoverObject.name = "Hover";
 
         // get hover and clicked rect 
-        RectTransform hoverTransform = HoverObject.GetComponent<RectTransform>();
-        RectTransform ClickedTransform = clicked.GetComponent<RectTransform>();
+        RectTransform hoverTransform = InventoryManager.Instance.HoverObject.GetComponent<RectTransform>();
+        RectTransform ClickedTransform = InventoryManager.Instance.Clicked.GetComponent<RectTransform>();
 
         // set the hover size of the clicked object
         hoverTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, ClickedTransform.sizeDelta.x);
         hoverTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ClickedTransform.sizeDelta.y);
 
         // make hover object child of canvas 
-        HoverObject.transform.SetParent(GameObject.Find("Canvas").transform, true);
+        InventoryManager.Instance.HoverObject.transform.SetParent(GameObject.Find("Canvas").transform, true);
 
         // size the normal size of clicked object
-        HoverObject.transform.localScale = clicked.gameObject.transform.localScale;
+        InventoryManager.Instance.HoverObject.transform.localScale = InventoryManager.Instance.Clicked.gameObject.transform.localScale;
 
-        HoverObject.transform.GetChild(0).GetComponent<Text>().text =
-            movingSlot.Items.Count > 1 ? movingSlot.Items.Count.ToString() : string.Empty;
+        InventoryManager.Instance.HoverObject.transform.GetChild(0).GetComponent<Text>().text =
+            InventoryManager.Instance.MovingSlot.Items.Count > 1 ? InventoryManager.Instance.MovingSlot.Items.Count.ToString() : string.Empty;
     }
 
-    // to put the items back in inventory when it is closed
+    // to put the itemScript back in inventory when it is closed
     private void PutItemBack()
     {
-        if (from != null)
+        if (InventoryManager.Instance.From != null)
         {
             Destroy(GameObject.Find("Hover")); // destroy the hover object
-            from.GetComponent<Image>().color = Color.white; // change the color back to white in the slot
-            from = null;
+            InventoryManager.Instance.From.GetComponent<Image>().color = Color.white; // change the color back to white in the slot
+            InventoryManager.Instance.From = null;
         }
-        else if (!movingSlot.isEmpty)
+        else if (!InventoryManager.Instance.MovingSlot.isEmpty)
         {
             Destroy(GameObject.Find("Hover"));
-            foreach (Items item in movingSlot.Items)
+            foreach (ItemScript item in InventoryManager.Instance.MovingSlot.Items)
             {
-                clicked.GetComponent<Slot>().AddItem(item);
+                InventoryManager.Instance.Clicked.GetComponent<Slot>().AddItem(item);
             }
-            movingSlot.ClearSlot(); 
+            InventoryManager.Instance.MovingSlot.ClearSlot(); 
         }
-        selectStackedSize.SetActive(false);
+        InventoryManager.Instance.selectStackedSize.SetActive(false);
     }
-
-    // info of stack 
-    public void setStackInfo(int maxStackCount)
-    {
-        // set the stack size object to true
-        selectStackedSize.SetActive(true);
-
-        toolTip.SetActive(false);
-
-        // stack is open 
-        StackOpenClose.OpenCloseStack = true;
   
-        // split amount is 0 at the start
-        splitAmount = 0;
-        // max size count of the object
-        MaxSizeCount = maxStackCount;
-        // change the text to split amount
-        stackText.text = splitAmount.ToString();
-    }
-    
     // function to slit stacks
     public void splitStack()
     {
         // set it to false 
-        selectStackedSize.SetActive(false);
+        InventoryManager.Instance.selectStackedSize.SetActive(false);
 
         // stack is closed
         StackOpenClose.OpenCloseStack = false;
 
-        if (splitAmount == MaxSizeCount)
+        if (InventoryManager.Instance.SplitAmount == InventoryManager.Instance.MaxSizeCount)
         {
-            MoveItem(clicked);
+            MoveItem(InventoryManager.Instance.Clicked);
         }
-        else if(splitAmount > 0)
+        else if(InventoryManager.Instance.SplitAmount > 0)
         {
             // move the slot 
-            movingSlot.Items = clicked.GetComponent<Slot>().RemoveItems(splitAmount);
+            InventoryManager.Instance.MovingSlot.Items = InventoryManager.Instance.Clicked.GetComponent<Slot>().RemoveItems(InventoryManager.Instance.SplitAmount);
 
             // make the hover icon
             CreateHoverIcon();
@@ -453,21 +385,21 @@ public class Inventory : MonoBehaviour
     // change the text for the stack object
     public void ChangeStackText(int i)
     {
-        splitAmount += i;
+        InventoryManager.Instance.SplitAmount += i;
 
         // if the split amount is 0 then set it to 0
-        if (splitAmount < 0)
+        if (InventoryManager.Instance.SplitAmount < 0)
         {
-            splitAmount = 0;
+            InventoryManager.Instance.SplitAmount = 0;
         }
 
         // if the split amount lager then MaxSizeCount then set it to MaxSizeCount
-        if (splitAmount > MaxSizeCount)
+        if (InventoryManager.Instance.SplitAmount > InventoryManager.Instance.MaxSizeCount)
         {
-            splitAmount = MaxSizeCount;
+            InventoryManager.Instance.SplitAmount = InventoryManager.Instance.MaxSizeCount;
         }
         // update the text 
-        stackText.text = splitAmount.ToString();
+        InventoryManager.Instance.stackText.text = InventoryManager.Instance.SplitAmount.ToString();
 
     }
 
@@ -475,23 +407,23 @@ public class Inventory : MonoBehaviour
     public void MergeStacks(Slot source, Slot destination)
     {
         // the max size at the destination
-        int max = destination.CurrentItem.maxSize - destination.Items.Count;
+        int max = destination.CurrentItemScript.maxSize - destination.Items.Count;
         
-        // amount of items to move
+        // amount of itemScript to move
         int count = source.Items.Count < max ? source.Items.Count : max;
 
-        // add the split items to the destination
+        // add the split itemScript to the destination
         for (int i = 0; i < count; i++)
         {
             destination.AddItem(source.RemoveItem());
-            HoverObject.transform.GetChild(0).GetComponent<Text>().text = movingSlot.Items.Count.ToString();
+            InventoryManager.Instance.HoverObject.transform.GetChild(0).GetComponent<Text>().text = InventoryManager.Instance.MovingSlot.Items.Count.ToString();
         }
         // if the source is 0 clear it
         if (source.Items.Count == 0)
         {
             source.ClearSlot();
-            to = null;
-            from = null;
+            InventoryManager.Instance.To = null;
+            InventoryManager.Instance.From = null;
             Destroy(GameObject.Find("Hover"));
         }
     }
@@ -503,15 +435,15 @@ public class Inventory : MonoBehaviour
         Slot tempSlot = slot.GetComponent<Slot>();
         
         // if the slot is not empty
-        if (!tempSlot.isEmpty && HoverObject == null && !selectStackedSizeStatic.activeSelf)
+        if (!tempSlot.isEmpty && InventoryManager.Instance.HoverObject == null && !InventoryManager.Instance.selectStackedSize.activeSelf)
         {
             // set the visual Text
-            VisualText.text = tempSlot.CurrentItem.GetToolTip();
+            InventoryManager.Instance.VisualTextObject.text = tempSlot.CurrentItemScript.GetToolTip();
             //set the size of the text
-            SizeText.text = VisualText.text;
+            InventoryManager.Instance.SizeTextObject.text = InventoryManager.Instance.VisualTextObject.text;
 
             // set the tool tip to active
-            toolTip.SetActive(true);
+            InventoryManager.Instance.toolTipObject.SetActive(true);
 
             // set the x pos for the tool tip
             float xPos = slot.transform.position.x + slotPaddingLeft;
@@ -520,7 +452,7 @@ public class Inventory : MonoBehaviour
             float yPos = slot.transform.position.y - slot.GetComponent<RectTransform>().sizeDelta.y - slotPaddingTop;
 
             // set the pos of the tool tip
-            toolTip.transform.position = new Vector2(xPos, yPos);
+            InventoryManager.Instance.toolTipObject.transform.position = new Vector2(xPos, yPos);
         }
 
     }
@@ -529,6 +461,6 @@ public class Inventory : MonoBehaviour
     public void HideToolTip()
     {
         // set the tool tip to false
-        toolTip.SetActive(false);
+        InventoryManager.Instance.toolTipObject.SetActive(false);
     }
 }

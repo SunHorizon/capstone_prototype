@@ -3,16 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ItemTpye {Mana, Health, Sword}
+public enum ItemTpye {CONSUMABLE, MAINHAND, TWOHAND, OFFHAND, HEAD, NECK, CHEST, RINGS, LEGS, BRACERS, WEAPON, BOOTS, TRINKET,}
 
 public enum Quality { COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, ARTIFACT}
 
-public class Items : MonoBehaviour
+public class ItemScript : MonoBehaviour
 {
     // Iteam type
     public ItemTpye type;
 
-    // quality of the item
+    // quality of the itemScript
     public Quality quality;
 
     // Non-selected sprite
@@ -21,33 +21,33 @@ public class Items : MonoBehaviour
     // Selected sprite
     [SerializeField] private Sprite spriteHighlighted;
 
-    // Max number items can stack
+    // Max number itemScript can stack
     public int maxSize;
 
     // stats could change. is this only temp
     public float Strength, intellect, agility, stamina;
 
-    // item name
+    // itemScript name
     public string itemName;
 
-    // description of the item
+    // description of the itemScript
     public string description;
 
 
-    // use the item method
+    // use the itemScript method
     public void Use()
     {
         switch (type)
         {
-            case ItemTpye.Mana:
-                Debug.Log("Mana Used"); // for testing
-                break;
-            case ItemTpye.Health:
-                Debug.Log("Health Used"); // for testing
-                break;
-            case ItemTpye.Sword:
-                Debug.Log("Sword Pick Up"); // for testing
-                break;
+            //case ItemTpye.Mana:
+            //    Debug.Log("Mana Used"); // for testing
+            //    break;
+            //case ItemTpye.Health:
+            //    Debug.Log("Health Used"); // for testing
+            //    break;
+            //case ItemTpye.Sword:
+            //    Debug.Log("Sword Pick Up"); // for testing
+            //    break;
         }
     }
     
